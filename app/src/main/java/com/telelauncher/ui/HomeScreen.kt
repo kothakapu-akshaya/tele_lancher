@@ -17,7 +17,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.border
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextAlign
@@ -82,9 +86,11 @@ fun DashboardContent(context: android.content.Context, launchApp: (String) -> Un
             try { val r = TmdbRepository(); movies = r.trendingMovies(); tv = r.trendingTv() } catch (e: Exception) { error = e.message } finally { loading = false }
         }
     }
+    val focusRequester = remember { FocusRequester() }
+    LaunchedEffect(Unit) { runCatching { focusRequester.requestFocus() } }
     LazyColumn(state = listState, modifier = Modifier.fillMaxSize().padding(40.dp)) {
         item { Text("Tele Launcher", color = Color.White, style = MaterialTheme.typography.headlineLarge); Spacer(Modifier.height(24.dp)) }
-        item { Row { Button(onClick = onSearch) { Text("Search") }; Spacer(Modifier.width(12.dp)); Button(onClick = onWatchlist) { Text("Watchlist") } }; Spacer(Modifier.height(24.dp)) }
+        item { Row { Button(onClick = onSearch, modifier = Modifier.focusRequester(focusRequester)) { Text("Search") }; Spacer(Modifier.width(12.dp)); Button(onClick = onWatchlist) { Text("Watchlist") } }; Spacer(Modifier.height(24.dp)) }
         if (loading) item { CircularProgressIndicator(color = Color.White) }
         error?.let { item { Text("Error: $it", color = Color.Red) } }
         if (movies.isNotEmpty()) {
@@ -191,7 +197,7 @@ fun SectionTitle(text: String) {
 fun PosterCard(title: String, url: String, onClick: () -> Unit) {
     var focused by remember { mutableStateOf(false) }
     val scale by androidx.compose.animation.core.animateFloatAsState(if (focused) 1.08f else 1f, label = "s")
-    Card(onClick = onClick, modifier = Modifier.width(140.dp).aspectRatio(2f/3f).scale(scale).onFocusChanged { focused = it.isFocused }) {
+    Card(onClick = onClick, modifier = Modifier.width(140.dp).aspectRatio(2f/3f).scale(scale).border(if (focused) 3.dp else 0.dp, Color.White).onFocusChanged { focused = it.isFocused }) {
         AsyncImage(model = url, contentDescription = title, modifier = Modifier.fillMaxSize())
     }
 }
