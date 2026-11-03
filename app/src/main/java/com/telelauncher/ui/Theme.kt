@@ -1,11 +1,9 @@
 package com.telelauncher.ui
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
 
 // Dark entertainment dashboard color scheme (navy/black background, purple accent)
@@ -37,10 +35,8 @@ private val LightTeleLauncherColorScheme = lightColorScheme(
 
 @Composable
 fun TeleLauncherTheme(content: @Composable () -> Unit) {
-    val darkTheme = isSystemInDarkTheme()
-    SideEffect { /* no-op; theme selected below */ }
     MaterialTheme(
-        colorScheme = if (darkTheme) DarkTeleLauncherColorScheme else LightTeleLauncherColorScheme,
+        colorScheme = DarkTeleLauncherColorScheme,
         typography = androidx.compose.material3.MaterialTheme.typography,
         shapes = androidx.compose.material3.MaterialTheme.shapes,
         content = content

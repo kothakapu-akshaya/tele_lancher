@@ -5,6 +5,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 
 @RunWith(AndroidJUnit4::class)
 class NavigationTest {
@@ -14,5 +17,35 @@ class NavigationTest {
     @Test
     fun dashboardLaunches() {
         composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText("Tele Launcher").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Search").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Watchlist").assertIsDisplayed()
+    }
+
+    @Test
+    fun searchButtonOpensSearchScreen() {
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText("Search").performClick()
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText("Back").assertIsDisplayed()
+    }
+
+    @Test
+    fun backButtonReturnsFromSearchToDashboard() {
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText("Search").performClick()
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText("Back").performClick()
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText("Tele Launcher").assertIsDisplayed()
+    }
+
+    @Test
+    fun watchlistButtonOpensWatchlist() {
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText("Watchlist").performClick()
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText("Back").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Watchlist").assertIsDisplayed()
     }
 }
