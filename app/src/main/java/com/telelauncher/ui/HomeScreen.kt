@@ -20,6 +20,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.input.TextFieldValue
@@ -83,16 +84,24 @@ fun DashboardContent(context: android.content.Context, launchApp: (String) -> Un
                 .sortedBy { it.label.lowercase() }
         }
         scope.launch {
-            try { val r = TmdbRepository(); movies = r.trendingMovies(); tv = r.trendingTv() } catch (e: Exception) { error = e.message } finally { loading = false }
+            try {
+                val r = TmdbRepository()
+                if (com.telelauncher.BuildConfig.TMDB_API_KEY.isBlank()) {
+                    error = "TMDB API key not configured. Add tmdb.api.key to local.properties."
+                } else {
+                    movies = r.trendingMovies()
+                    tv = r.trendingTv()
+                }
+            } catch (e: Exception) { error = e.message } finally { loading = false }
         }
     }
     val focusRequester = remember { FocusRequester() }
     LaunchedEffect(Unit) { runCatching { focusRequester.requestFocus() } }
-    LazyColumn(state = listState, modifier = Modifier.fillMaxSize().padding(40.dp)) {
+    LazyColumn(state = listState, modifier = Modifier.fillMaxSize().padding(40.dp).background(Color(0xFF0B0E14))) {
         item { Text("Tele Launcher", color = Color.White, style = MaterialTheme.typography.headlineLarge); Spacer(Modifier.height(24.dp)) }
         item { Row { Button(onClick = onSearch, modifier = Modifier.focusRequester(focusRequester)) { Text("Search") }; Spacer(Modifier.width(12.dp)); Button(onClick = onWatchlist) { Text("Watchlist") } }; Spacer(Modifier.height(24.dp)) }
         if (loading) item { CircularProgressIndicator(color = Color.White) }
-        error?.let { item { Text("Error: $it", color = Color.Red) } }
+        error?.let { item { Text("Error: $it", color = Color(0xFFCF6679)) } }
         if (movies.isNotEmpty()) {
             item { SectionTitle("Trending Movies") }
             item { LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) { items(movies) { m -> PosterCard(m.title, "https://image.tmdb.org/t/p/w342${m.poster_path}") { onDetails("movie", m.id) } } } }
@@ -140,10 +149,10 @@ fun DetailScreen(type: String, id: Int, onBack: () -> Unit, watchlist: Watchlist
     val genres = when (detail) { is TmdbMovieDetail -> (detail as TmdbMovieDetail).genres; is TmdbTvDetail -> (detail as TmdbTvDetail).genres; else -> emptyList() }
     val saved = watchlist.contains(type, id)
 
-    Column(Modifier.fillMaxSize().padding(40.dp)) {
+    Column(Modifier.fillMaxSize().padding(40.dp).background(Color(0xFF0B0E14))) {
         Button(onClick = onBack) { Text("Back") }
         if (loading) { CircularProgressIndicator(color = Color.White); return@Column }
-        error?.let { Text("Error: $it", color = Color.Red); return@Column }
+        error?.let { Text("Error: $it", color = Color(0xFFCF6679)); return@Column }
         AsyncImage(model = "https://image.tmdb.org/t/p/w1280$backdrop", contentDescription = title, modifier = Modifier.fillMaxWidth().height(240.dp))
         Row(Modifier.padding(top = 16.dp)) {
             AsyncImage(model = "https://image.tmdb.org/t/p/w342$poster", contentDescription = title, modifier = Modifier.size(160.dp, 240.dp))
@@ -167,7 +176,7 @@ fun SearchScreen(onBack: () -> Unit, onDetails: (String, Int) -> Unit) {
     var loading by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
-    Column(Modifier.fillMaxSize().padding(40.dp)) {
+    Column(Modifier.fillMaxSize().padding(40.dp).background(Color(0xFF0B0E14))) {
         Button(onClick = onBack) { Text("Back") }
         Spacer(Modifier.height(12.dp))
         OutlinedTextField(value = query, onValueChange = { query = it }, label = { Text("Search") })
@@ -179,7 +188,7 @@ fun SearchScreen(onBack: () -> Unit, onDetails: (String, Int) -> Unit) {
             }
         }) { Text("Search") }
         if (loading) CircularProgressIndicator(color = Color.White)
-        error?.let { Text("Error: $it", color = Color.Red) }
+        error?.let { Text("Error: $it", color = Color(0xFFCF6679)) }
         LazyVerticalGrid(columns = GridCells.Adaptive(150.dp), modifier = Modifier.fillMaxSize(), horizontalArrangement = Arrangement.spacedBy(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
             gridItems(results.filter { it.media_type == "movie" || it.media_type == "tv" }) { r ->
                 PosterCard(r.title ?: r.name ?: "", "https://image.tmdb.org/t/p/w342${r.poster_path}") { onDetails(r.media_type ?: "movie", r.id) }
@@ -205,12 +214,12 @@ fun PosterCard(title: String, url: String, onClick: () -> Unit) {
 @Composable
 fun WatchlistScreen(onBack: () -> Unit, onDetails: (String, Int) -> Unit, watchlist: WatchlistStore) {
     val entries = watchlist.list()
-    Column(Modifier.fillMaxSize().padding(40.dp)) {
+    Column(Modifier.fillMaxSize().padding(40.dp).background(Color(0xFF0B0E14))) {
         Button(onClick = onBack) { Text("Back") }
         Spacer(Modifier.height(12.dp))
         Text("Watchlist", color = Color.White, style = MaterialTheme.typography.headlineLarge)
         Spacer(Modifier.height(24.dp))
-        if (entries.isEmpty()) Text("Empty", color = Color.Gray)
+        if (entries.isEmpty()) Text("Empty", color = Color(0xFFAAAAAA))
         LazyVerticalGrid(columns = GridCells.Adaptive(150.dp), horizontalArrangement = Arrangement.spacedBy(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
             gridItems(entries) { e ->
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {

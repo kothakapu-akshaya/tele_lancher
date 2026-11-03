@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -9,12 +11,19 @@ android {
     compileSdk = 34
 
     defaultConfig {
+        val localProperties = Properties()
+        val localPropertiesFile = rootProject.file("local.properties")
+        if (localPropertiesFile.exists()) {
+            localPropertiesFile.inputStream().use { localProperties.load(it) }
+        }
+        val tmdbApiKey = localProperties.getProperty("tmdb.api.key") ?: ""
+
         applicationId = "com.telelauncher"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
-        buildConfigField("String", "TMDB_API_KEY", "\"${project.findProperty("tmdb.api.key") ?: ""}\"")
+        buildConfigField("String", "TMDB_API_KEY", "\"$tmdbApiKey\"")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
