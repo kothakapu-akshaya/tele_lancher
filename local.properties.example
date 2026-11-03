@@ -1,0 +1,2 @@
+sdk.dir=/path/to/android/sdk
+tmdb.api.key=YOUR_TMDB_API_KEY
