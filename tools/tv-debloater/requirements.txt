@@ -1,0 +1,3 @@
+# stdlib-only; optional:
+# rich>=13.0
+# pytest>=8.0
