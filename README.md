@@ -41,9 +41,13 @@ Tele_Launcher aims to address this by providing:
 
 - [Free My TV – GitHub Repository](https://github.com/simbasjungles/free-my-tv)
 
-## Project Status
+## Build
 
-🚧 Under development — Full-day AI-assisted hackathon project.
+```
+./gradlew assembleDebug
+```
+
+Requires Android SDK 34. Install via Android Studio.
 
 ## Vision
 
