@@ -24,6 +24,30 @@ Inspired by [Free My TV](https://github.com/simbasjungles/free-my-tv), this proj
 - **Loading, Empty, and Error States** — Clear feedback for all content states
 - **TMDB API Key Configuration** — Secure local configuration via `local.properties` (never committed)
 
+## Demo & Screenshots
+
+### Demo Video
+
+A short demo of Tele Launcher in action:
+
+[Tele Launcher Demo](docs/demo/Tele_lancher_demo.mp4)
+
+### Screenshots
+
+#### Launcher Home
+![Launcher Home](docs/demo/screenshots/homepage.png)
+
+#### Home Screen Variations
+![Home Screen Variation 1](docs/demo/screenshots/homepage1.png)
+
+![Home Screen Variation 2](docs/demo/screenshots/Homepage2.png)
+
+#### Movie Details
+![Movie Details](docs/demo/screenshots/movie_page.png)
+
+#### Watchlist
+![Watchlist](docs/demo/screenshots/watchlist.png)
+
 ## Technology Stack
 
 - **Language:** Kotlin
