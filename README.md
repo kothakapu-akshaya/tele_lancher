@@ -199,3 +199,15 @@ This project is open source and available under the MIT License.
 ## Reference
 
 - [Free My TV – GitHub Repository](https://github.com/simbasjungles/free-my-tv)
+## Programmatic Video Tutorial
+
+Run:
+```bash
+python3 video/render_tutorial.py
+```
+Requires: python3, Pillow, ffmpeg.
+Output: video/tele_lancher_tutorial.mp4
+
+## Social Media
+
+- LinkedIn: https://lnkd.in/p/diXK3TVV

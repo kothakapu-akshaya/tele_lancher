@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">टेली लॉन्चर</string>
+
+    <string name="home_title">टेली लॉन्चर</string>
+    <string name="nav_search">खोजें</string>
+    <string name="nav_watchlist">वॉचलिस्ट</string>
+    <string name="label_apps">ऐप्स</string>
+    <string name="action_back">वापस</string>
+
+    <string name="trending_movies">ट्रेंडिंग मूवीज़</string>
+    <string name="trending_tv">ट्रेंडिंग टीवी</string>
+    <string name="popular_movies">लोकप्रिय मूवीज़</string>
+    <string name="popular_tv_shows">लोकप्रिय टीवी शोज़</string>
+    <string name="continue_browsing">ब्राउज़िंग जारी रखें</string>
+    <string name="unable_load_details">विवरण लोड नहीं हो सका।</string>
+    <string name="api_key_not_configured">TMDB API key कॉन्फ़िगर नहीं है। local.properties में tmdb.api.key जोड़ें।</string>
+    <string name="entertainment_load_failed">एंटरटेनमेंट डिस्कवरी लोड नहीं हो सकी।</string>
+    <string name="unable_load">लोड नहीं हो सका: %1$s</string>
+    <string name="error_prefix">त्रुटि: %1$s</string>
+
+    <string name="watchlist_title">वॉचलिस्ट</string>
+    <string name="where_watch_india">भारत में कहाँ देखें? — भारत</string>
+    <string name="availability_note">उपलब्धता TMDB द्वारा भारत के लिए पुष्टि की गई है। सब्सक्रिप्शन, रेंटल और खरीद शर्तें शीर्षक और खाते के अनुसार भिन्न हो सकती हैं।</string>
+    <string name="no_provider_availability">TMDB द्वारा भारत के लिए कोई प्रोवाइडर उपलब्धता सूचीबद्ध नहीं है।</string>
+    <string name="subscription">सब्सक्रिप्शन</string>
+    <string name="rent">रेंट</string>
+    <string name="purchase">खरीद</string>
+    <string name="add_to_watchlist">वॉचलिस्ट में जोड़ें</string>
+    <string name="remove_from_watchlist">वॉचलिस्ट से हटाएं</string>
+    <string name="rating_date">रेटिंग: %1$s  •  %2$s</string>
+    <string name="empty_state">खाली</string>
+    <string name="remove_action">हटाएं</string>
+</resources>

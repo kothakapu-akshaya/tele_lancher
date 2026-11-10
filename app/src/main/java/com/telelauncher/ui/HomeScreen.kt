@@ -20,6 +20,8 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.*
+import androidx.compose.ui.res.stringResource
+import com.telelauncher.R
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -123,7 +125,7 @@ fun BackButton(onBack: () -> Unit, modifier: Modifier = Modifier) {
     ) {
         Text("←", style = MaterialTheme.typography.titleLarge)
         Spacer(Modifier.width(8.dp))
-        Text("Back", style = MaterialTheme.typography.titleMedium)
+        Text(stringResource(R.string.action_back), style = MaterialTheme.typography.titleMedium)
     }
 }
 
@@ -179,35 +181,35 @@ fun DashboardContent(
     ) {
         item {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("Tele Launcher", color = Color.White, style = MaterialTheme.typography.headlineLarge, modifier = Modifier.weight(1f))
-                TvButton("Search", onClick = onSearch, modifier = Modifier.focusRequester(initialFocus))
+                Text(stringResource(R.string.home_title), color = Color.White, style = MaterialTheme.typography.headlineLarge, modifier = Modifier.weight(1f))
+                TvButton(stringResource(R.string.nav_search), onClick = onSearch, modifier = Modifier.focusRequester(initialFocus))
                 Spacer(Modifier.width(12.dp))
-                TvButton("Watchlist", onClick = onWatchlist)
+                TvButton(stringResource(R.string.nav_watchlist), onClick = onWatchlist)
             }
             Spacer(Modifier.height(20.dp))
         }
         if (loading) item { CircularProgressIndicator(color = Color.White) }
-        error?.let { item { Text("Unable to load: $it", color = Color(0xFFCF6679)) } }
+        error?.let { item { Text(stringResource(R.string.unable_load, it), color = Color(0xFFCF6679)) } }
 
         val continueBrowsing = watchlist.list().take(10)
         if (continueBrowsing.isNotEmpty()) {
-            item { SectionTitle("Continue Browsing") }
+            item { SectionTitle(stringResource(R.string.continue_browsing)) }
             item { LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) { items(continueBrowsing) { e -> PosterCard(e.title, "https://image.tmdb.org/t/p/w342${e.poster ?: ""}") { onDetails(e.type, e.id) } } } }
         }
         if (movies.isNotEmpty()) {
-            item { SectionTitle("Trending Movies") }
+            item { SectionTitle(stringResource(R.string.trending_movies)) }
             item { LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) { items(movies) { m -> PosterCard(m.title, posterUrl(m.poster_path)) { onDetails("movie", m.id) } } } }
         }
         if (tv.isNotEmpty()) {
-            item { SectionTitle("Trending TV") }
+            item { SectionTitle(stringResource(R.string.trending_tv)) }
             item { LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) { items(tv) { t -> PosterCard(t.name, posterUrl(t.poster_path)) { onDetails("tv", t.id) } } } }
         }
         if (popularMovies.isNotEmpty()) {
-            item { SectionTitle("Popular Movies") }
+            item { SectionTitle(stringResource(R.string.popular_movies)) }
             item { LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) { items(popularMovies) { m -> PosterCard(m.title, posterUrl(m.poster_path)) { onDetails("movie", m.id) } } } }
         }
         if (popularTv.isNotEmpty()) {
-            item { SectionTitle("Popular TV Shows") }
+            item { SectionTitle(stringResource(R.string.popular_tv_shows)) }
             item { LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) { items(popularTv) { t -> PosterCard(t.name, posterUrl(t.poster_path)) { onDetails("tv", t.id) } } } }
         }
     }
@@ -251,7 +253,7 @@ fun AppLauncherScreen(onOpenDashboard: () -> Unit, launchApp: (String) -> Unit) 
     }
 
     Column(Modifier.fillMaxSize().background(Color(0xFF090D14)).padding(40.dp).escapeTo(onBack = { /* stay in launcher */ })) {
-        Text("Apps", color = Color.White, style = MaterialTheme.typography.headlineLarge)
+        Text(stringResource(R.string.label_apps), color = Color.White, style = MaterialTheme.typography.headlineLarge)
         Spacer(Modifier.height(24.dp))
         LazyVerticalGrid(columns = GridCells.Adaptive(150.dp), modifier = Modifier.fillMaxSize(), horizontalArrangement = Arrangement.spacedBy(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
             items(apps.value) { app ->
@@ -315,7 +317,7 @@ fun DetailScreen(type: String, id: Int, onBack: () -> Unit, watchlist: Watchlist
         Spacer(Modifier.height(12.dp))
         LazyColumn(Modifier.fillMaxSize()) {
         if (loading) item { Spacer(Modifier.height(24.dp)); CircularProgressIndicator(color = Color.White) }
-        error?.let { item { Spacer(Modifier.height(24.dp)); Text("Error: $it", color = Color(0xFFCF6679)) } }
+        error?.let { item { Spacer(Modifier.height(24.dp)); Text(stringResource(R.string.error_prefix, it), color = Color(0xFFCF6679)) } }
         if (!loading && error == null) item {
             Spacer(Modifier.height(16.dp))
             if (!backdrop.isNullOrBlank()) AsyncImage(model = "https://image.tmdb.org/t/p/w1280$backdrop", contentDescription = title, modifier = Modifier.fillMaxWidth().height(240.dp))
@@ -323,28 +325,28 @@ fun DetailScreen(type: String, id: Int, onBack: () -> Unit, watchlist: Watchlist
                 if (!poster.isNullOrBlank()) AsyncImage(model = "https://image.tmdb.org/t/p/w342$poster", contentDescription = title, modifier = Modifier.size(160.dp, 240.dp))
                 Column(Modifier.padding(start = 16.dp)) {
                     Text(title, color = Color.White, style = MaterialTheme.typography.headlineMedium)
-                    Text("Rating: $rating  •  $date", color = Color.Gray)
+                    Text(stringResource(R.string.rating_date, rating.toString(), date ?: ""), color = Color.Gray)
                     Text(genres.joinToString { it.name }, color = Color.Gray)
                     Spacer(Modifier.height(12.dp))
-                    TvButton(text = if (saved) "Remove from Watchlist" else "Add to Watchlist", onClick = { if (saved) watchlist.remove(type, id) else watchlist.add(type, id, title, poster); saved = !saved })
+                    TvButton(text = if (saved) stringResource(R.string.remove_from_watchlist) else stringResource(R.string.add_to_watchlist), onClick = { if (saved) watchlist.remove(type, id) else watchlist.add(type, id, title, poster); saved = !saved })
                 }
             }
             Spacer(Modifier.height(16.dp)); Text(overview ?: "", color = Color.White)
         }
 
         item {
-            Spacer(Modifier.height(24.dp)); SectionTitle("Where Can I Watch? — India")
-            Text("Availability is confirmed by TMDB for India. Subscription, rental, and purchase terms can vary by title and account.", color = Color(0xFFBFC7D5))
+            Spacer(Modifier.height(24.dp)); SectionTitle(stringResource(R.string.where_watch_india))
+            Text(stringResource(R.string.availability_note), color = Color(0xFFBFC7D5))
         }
         val subscription = providers?.flatrate.orEmpty().distinctBy { it.provider_id }
         val rental = providers?.rent.orEmpty().distinctBy { it.provider_id }
         val purchase = providers?.buy.orEmpty().distinctBy { it.provider_id }
         if (subscription.isEmpty() && rental.isEmpty() && purchase.isEmpty()) {
-            item { Text("No provider availability is listed by TMDB for India.", color = Color(0xFFAAAAAA)) }
+            item { Text(stringResource(R.string.no_provider_availability), color = Color(0xFFAAAAAA)) }
         } else {
-            if (subscription.isNotEmpty()) item { ProviderRow("Subscription", subscription, context, providers?.link) }
-            if (rental.isNotEmpty()) item { ProviderRow("Rent", rental, context, providers?.link) }
-            if (purchase.isNotEmpty()) item { ProviderRow("Purchase", purchase, context, providers?.link) }
+            if (subscription.isNotEmpty()) item { ProviderRow(stringResource(R.string.subscription), subscription, context, providers?.link) }
+            if (rental.isNotEmpty()) item { ProviderRow(stringResource(R.string.rent), rental, context, providers?.link) }
+            if (purchase.isNotEmpty()) item { ProviderRow(stringResource(R.string.purchase), purchase, context, providers?.link) }
         }
         }
     }
@@ -440,10 +442,10 @@ fun SearchScreen(onBack: () -> Unit, onDetails: (String, Int) -> Unit) {
     Column(Modifier.fillMaxSize().background(Color(0xFF090D14)).padding(40.dp).escapeTo(onBack, allowBackspace = false)) {
         BackButton(onBack = onBack)
         Spacer(Modifier.height(12.dp))
-        OutlinedTextField(value = query, onValueChange = { query = it }, label = { Text("Search") }, modifier = Modifier.focusRequester(fieldFocus).onFocusChanged { fieldFocused = it.isFocused }.then(if (fieldFocused) Modifier.border(3.dp, Color(0xFF7DB7FF)) else Modifier).onPreviewKeyEvent { event -> if (event.type == KeyEventType.KeyDown && (event.nativeKeyEvent.keyCode == AndroidKeyEvent.KEYCODE_ENTER || event.nativeKeyEvent.keyCode == AndroidKeyEvent.KEYCODE_NUMPAD_ENTER || event.nativeKeyEvent.keyCode == AndroidKeyEvent.KEYCODE_DPAD_CENTER)) { performSearch(); true } else false })
-        Spacer(Modifier.height(8.dp)); TvButton("Search", onClick = performSearch)
+        OutlinedTextField(value = query, onValueChange = { query = it }, label = { Text(stringResource(R.string.nav_search)) }, modifier = Modifier.focusRequester(fieldFocus).onFocusChanged { fieldFocused = it.isFocused }.then(if (fieldFocused) Modifier.border(3.dp, Color(0xFF7DB7FF)) else Modifier).onPreviewKeyEvent { event -> if (event.type == KeyEventType.KeyDown && (event.nativeKeyEvent.keyCode == AndroidKeyEvent.KEYCODE_ENTER || event.nativeKeyEvent.keyCode == AndroidKeyEvent.KEYCODE_NUMPAD_ENTER || event.nativeKeyEvent.keyCode == AndroidKeyEvent.KEYCODE_DPAD_CENTER)) { performSearch(); true } else false })
+        Spacer(Modifier.height(8.dp)); TvButton(stringResource(R.string.nav_search), onClick = performSearch)
         if (loading) CircularProgressIndicator(color = Color.White)
-        error?.let { Text("Error: $it", color = Color(0xFFCF6679)) }
+        error?.let { Text(stringResource(R.string.error_prefix, it), color = Color(0xFFCF6679)) }
         LazyVerticalGrid(columns = GridCells.Adaptive(150.dp), modifier = Modifier.fillMaxSize(), horizontalArrangement = Arrangement.spacedBy(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
             items(results.filter { it.media_type == "movie" || it.media_type == "tv" }) { r -> PosterCard(r.title ?: r.name ?: "", posterUrl(r.poster_path)) { onDetails(r.media_type ?: "movie", r.id) } }
         }
@@ -457,10 +459,10 @@ fun WatchlistScreen(onBack: () -> Unit, onDetails: (String, Int) -> Unit, watchl
     LaunchedEffect(Unit) { runCatching { backFocus.requestFocus() } }
     Column(Modifier.fillMaxSize().background(Color(0xFF090D14)).padding(40.dp).escapeTo(onBack)) {
         BackButton(onBack = onBack, modifier = Modifier.focusRequester(backFocus)); Spacer(Modifier.height(12.dp))
-        Text("Watchlist", color = Color.White, style = MaterialTheme.typography.headlineLarge); Spacer(Modifier.height(24.dp))
-        if (entries.isEmpty()) Text("Empty", color = Color(0xFFAAAAAA))
+        Text(stringResource(R.string.watchlist_title), color = Color.White, style = MaterialTheme.typography.headlineLarge); Spacer(Modifier.height(24.dp))
+        if (entries.isEmpty()) Text(stringResource(R.string.empty_state), color = Color(0xFFAAAAAA))
         LazyVerticalGrid(columns = GridCells.Adaptive(150.dp), horizontalArrangement = Arrangement.spacedBy(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            items(entries) { e -> Column(horizontalAlignment = Alignment.CenterHorizontally) { PosterCard(e.title, posterUrl(e.poster)) { onDetails(e.type, e.id) }; TvButton("Remove", onClick = { watchlist.remove(e.type, e.id); entries = watchlist.list() }) } }
+            items(entries) { e -> Column(horizontalAlignment = Alignment.CenterHorizontally) { PosterCard(e.title, posterUrl(e.poster)) { onDetails(e.type, e.id) }; TvButton(stringResource(R.string.remove_action), onClick = { watchlist.remove(e.type, e.id); entries = watchlist.list() }) } }
         }
     }
 }

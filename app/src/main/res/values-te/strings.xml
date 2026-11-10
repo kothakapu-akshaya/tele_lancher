@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">టెలీ లాంచర్</string>
+
+    <string name="home_title">టెలీ లాంచర్</string>
+    <string name="nav_search">శోధించండి</string>
+    <string name="nav_watchlist">వాచ్‌లిస్ట్</string>
+    <string name="label_apps">యాప్‌లు</string>
+    <string name="action_back">వెనక్కి</string>
+
+    <string name="trending_movies">ట్రెండింగ్ సినిమాలు</string>
+    <string name="trending_tv">ట్రెండింగ్ టీవీ</string>
+    <string name="popular_movies">పాపులర్ సినిమాలు</string>
+    <string name="popular_tv_shows">పాపులర్ టీవీ షోలు</string>
+    <string name="continue_browsing">బ్రౌజింగ్ కొనసాగించండి</string>
+    <string name="unable_load_details">వివరాలు లోడ్ కాలేదు.</string>
+    <string name="api_key_not_configured">TMDB API key కాన్ఫిగర్ కాలేదు. local.properties లో tmdb.api.key జోడించండి.</string>
+    <string name="entertainment_load_failed">ఎంటర్టైన్మెంట్ డిస్కవరీ లోడ్ కాలేదు.</string>
+    <string name="unable_load">లోడ్ కాలేదు: %1$s</string>
+    <string name="error_prefix">లోపం: %1$s</string>
+
+    <string name="watchlist_title">వాచ్‌లిస్ట్</string>
+    <string name="where_watch_india">ఎక్కడ చూడాలి? — భారతదేశం</string>
+    <string name="availability_note">భారతదేశానికి TMDB ద్వారా లభ్యత నిర్ధారించబడింది. సబ్‌స్క్రిప్షన్, రెంటల్ మరియు కొనుగోలు నిబంధనలు శీర్షిక మరియు ఖాతా ప్రకారం మారవచ్చు.</string>
+    <string name="no_provider_availability">భారతదేశానికి TMDB ద్వారా ప్రొవైడర్ లభ్యత జాబితా చేయబడలేదు.</string>
+    <string name="subscription">సబ్‌స్క్రిప్షన్</string>
+    <string name="rent">రెంట్</string>
+    <string name="purchase">కొనుగోలు</string>
+    <string name="add_to_watchlist">వాచ్‌లిస్ట్‌కు జోడించండి</string>
+    <string name="remove_from_watchlist">వాచ్‌లిస్ట్ నుండి తొలగించండి</string>
+    <string name="rating_date">రేటింగ్: %1$s  •  %2$s</string>
+    <string name="empty_state">ఖాలీ</string>
+    <string name="remove_action">తొలగించండి</string>
+</resources>
