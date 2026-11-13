@@ -53,6 +53,7 @@ private sealed class Screen {
     data class Details(val type: String, val id: Int) : Screen()
     data object Search : Screen()
     data object Watchlist : Screen()
+    data object TeleShield : Screen()
 }
 
 data class AppEntry(val label: String, val packageName: String?, val launchIntent: Intent? = null)
@@ -75,7 +76,7 @@ fun HomeScreen(startInAppLauncher: Boolean = false, launchApp: (String) -> Unit)
     when (val current = screen) {
         Screen.Dashboard -> {
             BackHandler { /* Tele Launcher dashboard is a stable Home screen */ }
-            DashboardContent(dashboardListState, watchlist, onDetails = { type, id -> screen = Screen.Details(type, id) }, onSearch = { screen = Screen.Search }, onWatchlist = { screen = Screen.Watchlist })
+            DashboardContent(dashboardListState, watchlist, onDetails = { type, id -> screen = Screen.Details(type, id) }, onSearch = { screen = Screen.Search }, onWatchlist = { screen = Screen.Watchlist }, onTeleShield = { screen = Screen.TeleShield })
         }
         Screen.AppLauncher -> {
             BackHandler { /* Do not leave the launcher accidentally */ }
@@ -92,6 +93,10 @@ fun HomeScreen(startInAppLauncher: Boolean = false, launchApp: (String) -> Unit)
         Screen.Watchlist -> {
             BackHandler { screen = Screen.Dashboard }
             WatchlistScreen(onBack = { screen = Screen.Dashboard }, onDetails = { type, id -> screen = Screen.Details(type, id) }, watchlist = watchlist)
+        }
+        Screen.TeleShield -> {
+            BackHandler { screen = Screen.Dashboard }
+            AdBlockScreen(onBack = { screen = Screen.Dashboard })
         }
     }
 }
@@ -135,16 +140,34 @@ fun DashboardContent(
     watchlist: WatchlistStore,
     onDetails: (String, Int) -> Unit,
     onSearch: () -> Unit,
-    onWatchlist: () -> Unit
+    onWatchlist: () -> Unit,
+    onTeleShield: () -> Unit = {}
 ) {
     var movies by remember { mutableStateOf<List<TmdbMovie>>(emptyList()) }
     var tv by remember { mutableStateOf<List<TmdbTv>>(emptyList()) }
     var popularMovies by remember { mutableStateOf<List<TmdbMovie>>(emptyList()) }
     var popularTv by remember { mutableStateOf<List<TmdbTv>>(emptyList()) }
+    var apps by remember { mutableStateOf<List<AppEntry>>(emptyList()) }
     var loading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
+    val context = androidx.compose.ui.platform.LocalContext.current
 
+    LaunchedEffect(Unit) {
+        withContext(Dispatchers.IO) {
+            val pm = context.packageManager
+            val installed = mutableMapOf<String, AppEntry>()
+            val liveIntent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LEANBACK_LAUNCHER)
+            pm.queryIntentActivities(liveIntent, 0).forEach { info ->
+                val pkg = info.activityInfo.packageName
+                if (pkg != context.packageName && !installed.containsKey(pkg)) {
+                    installed[pkg] = AppEntry(info.loadLabel(pm).toString(), pkg)
+                }
+            }
+            installed.values.forEach { android.util.Log.d("TeleLauncher", "Discovered app: ${it.label} (${it.packageName})") }
+            apps = installed.values.sortedBy { it.label.lowercase() }
+        }
+    }
     LaunchedEffect(Unit) {
         if (BuildConfig.TMDB_API_KEY.isBlank()) {
             error = "TMDB API key not configured. Add tmdb.api.key to local.properties."
@@ -156,12 +179,13 @@ fun DashboardContent(
                 val trendingTv = async { runCatching { repo.trendingTv() } }
                 val popularMovie = async { runCatching { repo.popularMovies("IN") } }
                 val popularTvShows = async { runCatching { repo.popularTv("IN") } }
-                trendingMovies.await().fold({ movies = it }, { })
-                trendingTv.await().fold({ tv = it }, { })
-                popularMovie.await().fold({ popularMovies = it }, { })
-                popularTvShows.await().fold({ popularTv = it }, { })
+                val errs = mutableListOf<String>()
+                trendingMovies.await().fold({ movies = it }, { errs.add(it.message ?: it.toString()) })
+                trendingTv.await().fold({ tv = it }, { errs.add(it.message ?: it.toString()) })
+                popularMovie.await().fold({ popularMovies = it }, { errs.add(it.message ?: it.toString()) })
+                popularTvShows.await().fold({ popularTv = it }, { errs.add(it.message ?: it.toString()) })
                 if (movies.isEmpty() && tv.isEmpty() && popularMovies.isEmpty() && popularTv.isEmpty()) {
-                    error = "Entertainment discovery could not be loaded."
+                    error = if (errs.isNotEmpty()) errs.first() else "Entertainment discovery could not be loaded."
                 }
                 loading = false
             }
@@ -185,6 +209,8 @@ fun DashboardContent(
                 TvButton(stringResource(R.string.nav_search), onClick = onSearch, modifier = Modifier.focusRequester(initialFocus))
                 Spacer(Modifier.width(12.dp))
                 TvButton(stringResource(R.string.nav_watchlist), onClick = onWatchlist)
+                Spacer(Modifier.width(12.dp))
+                TvButton("TeleShield", onClick = onTeleShield)
             }
             Spacer(Modifier.height(20.dp))
         }
@@ -195,6 +221,27 @@ fun DashboardContent(
         if (continueBrowsing.isNotEmpty()) {
             item { SectionTitle(stringResource(R.string.continue_browsing)) }
             item { LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) { items(continueBrowsing) { e -> PosterCard(e.title, "https://image.tmdb.org/t/p/w342${e.poster ?: ""}") { onDetails(e.type, e.id) } } } }
+        }
+        item { SectionTitle("My TV Apps") }
+        if (apps.isEmpty()) {
+            item { Text("No installed TV apps discovered.", color = Color(0xFFAAAAAA)) }
+        } else {
+            item { LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) { items(apps) { a ->
+                var focused by remember { mutableStateOf(false) }
+                val scale by animateFloatAsState(if (focused) 1.08f else 1f, label = "appScale2")
+                Card(onClick = {
+                    val intent = a.packageName?.let { context.packageManager.getLaunchIntentForPackage(it) }
+                    if (intent != null) context.startActivity(intent) else android.util.Log.w("TeleLauncher", "No launch intent for ${a.packageName}")
+                }, modifier = Modifier.width(120.dp).aspectRatio(0.85f).scale(scale).then(if (focused) Modifier.border(3.dp, Color(0xFF7DB7FF)) else Modifier).onFocusChanged { focused = it.isFocused }) {
+                    Column(Modifier.fillMaxSize().padding(10.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+                        if (a.packageName != null) {
+                            AsyncImage(model = runCatching { context.packageManager.getApplicationIcon(a.packageName) }.getOrNull(), contentDescription = a.label, modifier = Modifier.size(56.dp))
+                        }
+                        Spacer(Modifier.height(8.dp))
+                        Text(a.label, color = Color.White, maxLines = 2, overflow = TextOverflow.Ellipsis, textAlign = TextAlign.Center)
+                    }
+                }
+            } } }
         }
         if (movies.isNotEmpty()) {
             item { SectionTitle(stringResource(R.string.trending_movies)) }
